@@ -21,7 +21,15 @@ pipeline {
                  sh 'docker push ahmedshetta/numeric-app:""$GIT_COMMIT""'
               }
             }
-        }     
-    
+        }
+      stage('Kubernetes Deployment - DEV') {
+            steps {
+
+              withKubeConfig([credentialsId: 'kubeconfig']) {
+                  sh "sed -i 's#replace#ahmedshetta/numeric-app:${$GIT_COMMIT}#g' k8s_PROD-deployment_service.yaml"
+                  sh "kubectl  apply -f k8s_PROD-deployment_service.yaml"     
+                }
+       }
+      }
 }
 }
