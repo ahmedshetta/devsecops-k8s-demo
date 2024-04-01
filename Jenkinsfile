@@ -13,13 +13,18 @@ pipeline {
               sh "mvn test"
             }
         }
-      stage('SonarQube SAST Testing'){  
-            steps {
-              sh "mvn sonar:sonar -Dsonar.projectKey=numeric-application -Dsonar.projectName='numeric-application' -Dsonar.host.url=http://devsecops-demo-se.eastus.cloudapp.azure.com:9000 -Dsonar.token=
+
+      stage('Vulnerability Scan - Docker') {
+          steps{
+            sh "mvn dependency-check:check"
+          }
+            post {
+              always {
+                dependencyCheckPublisher pattern: 'target/dependency-check-report.xml'
+              }
             }
-
-
-      }     
+      } 
+     
       stage('Docker Build and Push') {
             steps {
               withDockerRegistry([credentialsId: "docker-hub", url: ""]) {
@@ -29,6 +34,9 @@ pipeline {
               }
             }
         }
+
+
+
       stage('Kubernetes Deployment - DEV') {
             steps {
               withKubeConfig([credentialsId: 'kubeconfig']) {
