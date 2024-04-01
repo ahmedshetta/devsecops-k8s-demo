@@ -12,7 +12,14 @@ pipeline {
             steps {
               sh "mvn test"
             }
-        }   
+        }
+      stage('SonarQube SAST Testing'){  
+            steps {
+              sh "mvn clean verify sonar:sonar -Dsonar.projectKey=numeric-application -Dsonar.projectName='numeric-application' -Dsonar.host.url=http://devsecops-demo-se.eastus.cloudapp.azure.com:9000 -Dsonar.token=sqp_75e039618738625f04abfb1c4d62fb507507d52e"
+            }
+
+
+      }     
       stage('Docker Build and Push') {
             steps {
               withDockerRegistry([credentialsId: "docker-hub", url: ""]) {
